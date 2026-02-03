@@ -33,7 +33,7 @@ export default function Signup() {
   return (
     <div style={containerStyle}>
       <div style={formCardStyle}>
-        <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1e3a8a' }}>Naya Account Banayein</h2>
+        <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1e3a8a' }}>Register Your Account</h2>
         
         <form onSubmit={handleSignup}>
           <div style={inputGroup}>
