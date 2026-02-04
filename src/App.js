@@ -5,6 +5,9 @@ import Home from './components/Home';
 import Admin from './components/Admin';
 import Signup from './components/Signup';
 import Login from './components/Login';
+// App.js ke upar ye lazmi likhein
+import ServiceDetails from './components/ServiceDetails';
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -74,6 +77,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/service/:id" element={<ServiceDetails />} />
         
         {/* Protected Admin Route */}
         <Route 

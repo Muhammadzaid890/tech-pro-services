@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react'; // Arrows ke liye
+import { useNavigate } from 'react-router-dom';
+// ...
+const navigate = useNavigate();
+
+return (
+  <div style={cardStyle} onClick={() => navigate(`/service/${service.id}`)}>
+    {/* Baki purana code wahi rahega */}
+  </div>
+);
 
 const ServiceCard = ({ service, onBook }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
