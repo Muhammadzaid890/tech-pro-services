@@ -1,15 +1,27 @@
 import React from 'react';
 
 const ServiceCard = ({ service, onBook }) => {
+  // --- Naya Logic: Image nikalne ka tarika ---
+  // Agar 'media' array mein data hai toh pehli image/video ka URL lo, 
+  // warna purana 'image_url' check karo.
+  const displayImage = (service.media && service.media.length > 0) 
+    ? service.media[0].url 
+    : (service.image_url || 'https://placehold.co/400x250?text=No+Image');
+
   return (
-    <div style={cardStyle}>
+    <div style={cardStyle} className="service-card">
       {/* Image Section */}
       <div style={imageContainer}>
-        <img 
-          src={service.image_url || 'https://placehold.co/400x250?text=No+Image'} 
-          alt={service.title} 
-          style={imageStyle} 
-        />
+        {/* Agar media ka pehla item video hai toh video tag dikhao, warna image */}
+        {service.media && service.media[0]?.type === 'video' ? (
+          <video src={displayImage} style={imageStyle} muted />
+        ) : (
+          <img 
+            src={displayImage} 
+            alt={service.title} 
+            style={imageStyle} 
+          />
+        )}
         <div style={categoryBadge}>{service.category}</div>
       </div>
 
@@ -31,7 +43,7 @@ const ServiceCard = ({ service, onBook }) => {
   );
 };
 
-// --- Modern Glassmorphism & Shadow Styles ---
+// --- Baki Styles Wahi Rahenge ---
 const cardStyle = {
   background: '#ffffff',
   borderRadius: '15px',
@@ -47,7 +59,8 @@ const imageContainer = {
   position: 'relative',
   width: '100%',
   height: '200px',
-  overflow: 'hidden'
+  overflow: 'hidden',
+  background: '#f1f5f9' // Background color jab tak image load ho
 };
 
 const imageStyle = {
@@ -88,7 +101,7 @@ const descStyle = {
   color: '#64748b',
   margin: '0 0 20px 0',
   lineHeight: '1.5',
-  height: '42px', // Sirf 2 lines dikhayega
+  height: '42px', 
   overflow: 'hidden'
 };
 
