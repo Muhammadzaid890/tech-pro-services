@@ -45,7 +45,8 @@ const ServiceDetails = () => {
   return (
     <div style={containerStyle}>
       <button onClick={() => navigate(-1)} style={backBtn}>
-        <ChevronLeft size={20} /> Back to Services
+        <ChevronLeft size={20} /> Back to Linsting
+        
       </button>
 
       {/* --- PART 1: POSTER GRID GALLERY --- */}
