@@ -9,7 +9,7 @@ export default function Navbar() {
       background: '#1e40af', 
       color: 'white' 
     }}>
-      <h3 style={{ margin: 0 }}>TECH PRO SERVICES</h3>
+      <h3 style={{ margin: 0 }}>DHA VILLAS & BUNGALOWS</h3>
       <div>
         <Link to="/" style={{ color: 'white', marginRight: '20px', textDecoration: 'none' }}>Home</Link>
         <Link to="/admin" style={{ color: 'white', textDecoration: 'none' }}>Admin Panel</Link>

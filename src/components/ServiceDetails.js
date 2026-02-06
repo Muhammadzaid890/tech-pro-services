@@ -91,12 +91,12 @@ const ServiceDetails = () => {
             <p style={{fontWeight: 'bold', marginBottom: '15px'}}>Contact Seller</p>
             <div style={sellerInfo}>
               <div style={avatar}>AD</div>
-              <span>Tech Pro Contractor</span>
+              <span>DHA VILLAS & BUNGALOWS</span>
             </div>
             <button style={callBtn} onClick={() => window.open(`tel:+923001234567`)}>
-              <Phone size={18} /> +92 300 1234567
+              <Phone size={18} /> +92 316 2802558
             </button>
-            <button style={whatsappBtn} onClick={() => window.open(`https://wa.me/923001234567`)}>
+            <button style={whatsappBtn} onClick={() => window.open(`https://wa.me/923162802558?text=Hello%20DHA%20Villas%20%26%20Bungalows,%20I%20am%20interested%20in%20the%20property%20you%20have%20listed.`)}>
               Chat on WhatsApp
             </button>
           </div>

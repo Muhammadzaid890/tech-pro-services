@@ -25,7 +25,7 @@ export default function Signup() {
     if (error) {
       alert("Error: " + error.message);
     } else {
-      alert("Account ban gaya hai! Ab aap login kar sakte hain.");
+      alert("Account created. You can now log in.");
       navigate('/login');
     }
   };

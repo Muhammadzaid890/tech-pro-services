@@ -174,12 +174,12 @@ export default function Home() {
           <div style={footerCol}>
             <h4 style={{ color: '#fff', marginBottom: '15px' }}>Contact Details</h4>
             <p style={contactItem}><FaMapMarkerAlt style={{marginRight: '10px'}}/> Karachi, Pakistan</p>
-            <p style={contactItem}><FaPhoneAlt style={{marginRight: '10px'}}/> +92 300 1234567</p>
-            <p style={contactItem}><FaEnvelope style={{marginRight: '10px'}}/> support@techpro.com</p>
+            <p style={contactItem}><FaPhoneAlt style={{marginRight: '10px'}}/> +92 316 2802558</p>
+            <p style={contactItem}><FaEnvelope style={{marginRight: '10px'}}/> support@dhavillas&bungalows.com</p>
           </div>
         </div>
         <div style={copyrightStyle}>
-          © {new Date().getFullYear()} Tech Pro Services. All Rights Reserved.
+          © {new Date().getFullYear()} DHA VILLAS & BUNGALOWS. All Rights Reserved.
         </div>
       </footer>
     </div>

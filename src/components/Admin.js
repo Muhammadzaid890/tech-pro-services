@@ -97,7 +97,7 @@ const Admin = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Arial' }}>
-      <h1 style={{color: '#1e40af'}}>TECH PRO Admin</h1>
+      <h1 style={{color: '#1e40af'}}>DHA VILLAS & BUNGALOWS Admin</h1>
 
       {/* SECTION 1: POST AD */}
       <section style={cardStyle}>
