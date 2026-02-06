@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Pencil, Trash2 } from 'lucide-react'; 
+import { Pencil, Trash2, Star } from 'lucide-react'; 
 
 const Admin = () => {
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]); 
+  const [reviews, setReviews] = useState([]); // Reviews state
   const [newService, setNewService] = useState({ title: '', description: '', category: '', media: [], price: '' });
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -12,6 +13,7 @@ const Admin = () => {
   useEffect(() => {
     fetchBookings();
     fetchServices();
+    fetchReviews(); // Load reviews on start
   }, []);
 
   const formatPriceToWords = (num) => {
@@ -31,7 +33,6 @@ const Admin = () => {
   };
 
   async function fetchBookings() {
-    // Is query se hum bookings aur usse judi service ka title dono la rahe hain
     const { data, error } = await supabase.from('bookings').select('*, services(title)');
     if (error) console.error("Booking fetch error:", error);
     if (data) setBookings(data);
@@ -40,6 +41,13 @@ const Admin = () => {
   async function fetchServices() {
     const { data } = await supabase.from('services').select('*').order('created_at', { ascending: false });
     if (data) setServices(data);
+  }
+
+  // Fetch Reviews Function
+  async function fetchReviews() {
+    const { data, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
+    if (error) console.error("Reviews fetch error:", error);
+    if (data) setReviews(data);
   }
 
   const handleFileUpload = async (e) => {
@@ -72,13 +80,12 @@ const Admin = () => {
     fetchServices();
   };
 
-  // Naya aur behtar Delete function jo 409 error ko samjhaye ga
   const deleteAd = async (id) => {
     if (window.confirm("Delete this Ad?")) {
       const { error } = await supabase.from('services').delete().eq('id', id);
       if (error) {
         if (error.code === '23503') {
-           alert("❌ Galti: Is Ad ki Bookings pehle se maujood hain. Pehle niche se Bookings delete karein, phir Ad delete hoga.");
+           alert("❌ Galti: Is Ad ki Bookings pehle se maujood hain. Pehle niche se Bookings delete karein.");
         } else {
            alert("Error: " + error.message);
         }
@@ -95,13 +102,25 @@ const Admin = () => {
     }
   };
 
+  // Naya Review Delete Function
+  const deleteReview = async (id) => {
+    if (window.confirm("Kya aap ye review delete karna chahte hain?")) {
+      const { error } = await supabase.from('reviews').delete().eq('id', id);
+      if (error) {
+        alert("Error: " + error.message);
+      } else {
+        fetchReviews(); // Refresh the list
+      }
+    }
+  };
+
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto', fontFamily: 'Arial' }}>
-      <h1 style={{color: '#1e40af'}}>DHA VILLAS & BUNGALOWS Admin</h1>
+      <h1 style={{color: '#1e40af', textAlign: 'center'}}>DHA VILLAS & BUNGALOWS Admin</h1>
 
       {/* SECTION 1: POST AD */}
       <section style={cardStyle}>
-        <h2>{editingId ? "✏️ Edit Ad" : "📢 Post New Ad"}</h2>
+        <h2 style={{color: '#1e40af'}}>{editingId ? "✏️ Edit Ad" : "📢 Post New Ad"}</h2>
         <form onSubmit={handleUploadAd}>
           <input style={inputStyle} placeholder="Title" value={newService.title} onChange={e => setNewService({...newService, title: e.target.value})} required />
           <div style={{marginBottom: '10px'}}>
@@ -110,32 +129,35 @@ const Admin = () => {
           </div>
           <textarea style={inputStyle} placeholder="Description" rows="4" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} required />
           <input style={inputStyle} placeholder="Category" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} required />
-          <input type="file" multiple onChange={handleFileUpload} />
-          <button type="submit" style={btnStyle} disabled={uploading}>{uploading ? "Uploading..." : "Publish"}</button>
+          <div style={{background: '#fff', padding: '10px', borderRadius: '5px', border: '1px dashed #ccc', marginBottom: '10px'}}>
+            <label style={{fontSize: '14px', color: '#666'}}>Upload Images/Videos: </label>
+            <input type="file" multiple onChange={handleFileUpload} />
+          </div>
+          <button type="submit" style={btnStyle} disabled={uploading}>{uploading ? "Uploading..." : "Publish Ad"}</button>
         </form>
       </section>
 
       {/* SECTION 2: MANAGE ADS */}
       <section style={cardStyle}>
-        <h2>Manage Your Ads</h2>
+        <h2 style={{color: '#1e40af'}}>Manage Your Ads</h2>
         {services.map(ad => (
           <div key={ad.id} style={adRowStyle}>
             <span>{ad.title} - <strong>PKR {ad.price}</strong></span>
             <div>
-              <button onClick={() => { setEditingId(ad.id); setNewService(ad); }} style={{marginRight:'5px'}}><Pencil size={16}/></button>
-              <button onClick={() => deleteAd(ad.id)} style={{background:'#ef4444', color:'white', border:'none', padding:'5px', borderRadius:'4px'}}><Trash2 size={16}/></button>
+              <button onClick={() => { setEditingId(ad.id); setNewService(ad); window.scrollTo(0,0); }} style={{marginRight:'5px', cursor:'pointer'}}><Pencil size={16}/></button>
+              <button onClick={() => deleteAd(ad.id)} style={{background:'#ef4444', color:'white', border:'none', padding:'5px', borderRadius:'4px', cursor:'pointer'}}><Trash2 size={16}/></button>
             </div>
           </div>
         ))}
       </section>
 
-      {/* SECTION 3: BOOKINGS (Ye wala section aapka missing tha) */}
+      {/* SECTION 3: BOOKINGS */}
       <section style={cardStyle}>
-        <h2 style={{borderBottom: '2px solid #1e40af', paddingBottom: '10px'}}>Customer Bookings</h2>
+        <h2 style={{borderBottom: '2px solid #1e40af', paddingBottom: '10px', color: '#1e40af'}}>Customer Bookings</h2>
         <div style={{overflowX: 'auto'}}>
           <table style={{width: '100%', borderCollapse: 'collapse', background: 'white'}}>
             <thead>
-              <tr style={{background: '#eee'}}>
+              <tr style={{background: '#1e40af', color: 'white'}}>
                 <th style={tdStyle}>Customer</th>
                 <th style={tdStyle}>Service</th>
                 <th style={tdStyle}>Phone</th>
@@ -157,14 +179,36 @@ const Admin = () => {
           </table>
         </div>
       </section>
+
+      {/* SECTION 4: MANAGE REVIEWS (Naya Section) */}
+      <section style={cardStyle}>
+        <h2 style={{borderBottom: '2px solid #1e40af', paddingBottom: '10px', color: '#1e40af'}}>Manage Customer Reviews</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px', marginTop: '15px' }}>
+          {reviews.length > 0 ? reviews.map(rev => (
+            <div key={rev.id} style={{ background: 'white', padding: '15px', borderRadius: '8px', border: '1px solid #eee', position: 'relative' }}>
+              <div style={{ fontWeight: 'bold', fontSize: '14px' }}>{rev.customer_name}</div>
+              <div style={{ color: '#facc15', display: 'flex', alignItems: 'center', gap: '2px', margin: '5px 0' }}>
+                {[...Array(rev.rating)].map((_, i) => <Star key={i} size={12} fill="#facc15" />)}
+              </div>
+              <p style={{ fontSize: '13px', color: '#555', margin: '5px 0' }}>{rev.comment}</p>
+              <button 
+                onClick={() => deleteReview(rev.id)} 
+                style={{ position: 'absolute', top: '10px', right: '10px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          )) : <p style={{ textAlign: 'center', gridColumn: '1/-1' }}>No reviews yet.</p>}
+        </div>
+      </section>
     </div>
   );
 };
 
-const cardStyle = { background: '#f9f9f9', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #ddd' };
-const inputStyle = { display: 'block', width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc' };
-const btnStyle = { padding: '10px 25px', background: '#1e40af', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '5px', marginTop:'10px' };
-const adRowStyle = { display: 'flex', justifyContent: 'space-between', padding: '10px', borderBottom: '1px solid #eee' };
+const cardStyle = { background: '#f9f9f9', padding: '20px', borderRadius: '10px', marginBottom: '30px', border: '1px solid #ddd', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' };
+const inputStyle = { display: 'block', width: '100%', padding: '12px', marginBottom: '10px', borderRadius: '5px', border: '1px solid #ccc', boxSizing: 'border-box' };
+const btnStyle = { width: '100%', padding: '12px', background: '#1e40af', color: 'white', border: 'none', cursor: 'pointer', borderRadius: '5px', fontWeight: 'bold', fontSize: '16px' };
+const adRowStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', borderBottom: '1px solid #eee', background: 'white', marginBottom: '5px', borderRadius: '5px' };
 const tdStyle = { padding: '12px', textAlign: 'left' };
 
 export default Admin;

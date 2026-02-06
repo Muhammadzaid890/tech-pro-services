@@ -3,10 +3,11 @@ import { supabase } from '../supabaseClient';
 import ServiceCard from './ServiceCard';
 import BookingForm from './BookingForm';
 import { useNavigate } from 'react-router-dom';
-import { FaInstagram, FaFacebook, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt } from 'react-icons/fa';
+import { FaInstagram, FaFacebook, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt, FaSearch } from 'react-icons/fa';
 
 export default function Home() {
   const [services, setServices] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(''); // Search state
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ comment: '', rating: 5 });
   const [selectedService, setSelectedService] = useState(null);
@@ -37,6 +38,13 @@ export default function Home() {
     const { data } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
     if (data) setReviews(data);
   }
+
+  // --- Search Logic ---
+  const filteredServices = services.filter(service => 
+    service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
@@ -70,40 +78,36 @@ export default function Home() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* --- PREMIUM VIDEO HERO SECTION --- */}
+      {/* --- HERO SECTION --- */}
       <div style={heroContainer}>
-        {/* CSS for Animation - Inline Style Tag */}
         <style>
           {`
-            @keyframes fadeInUp {
-              from { opacity: 0; transform: translateY(30px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
+            @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
             .animate-title { animation: fadeInUp 1s ease-out forwards; }
             .animate-subtitle { opacity: 0; animation: fadeInUp 1s ease-out 0.4s forwards; }
             .animate-btn { opacity: 0; animation: fadeInUp 1s ease-out 0.8s forwards; }
+            video { object-fit: cover !important; }
+            .service-card-custom { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important; }
+            .service-card-custom:hover { transform: translateY(-12px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-color: #1e40af !important; }
+            .service-card-custom:hover img { transform: scale(1.08); }
           `}
         </style>
 
         <video autoPlay loop muted playsInline style={videoBackground}>
-          <source src="/hero-video.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
+          <source src="/hero.mp4" type="video/mp4" />
         </video>
 
         <div style={heroOverlay}>
           <div style={heroContent}>
             <h1 style={heroTitle} className="animate-title">
-              Find Your Dream Home in <span style={{color: '#f87171'}}>DHA Karachi</span>
+              Find Your Dream Home in <br />
+              <span style={{color: '#f87171', whiteSpace: 'nowrap'}}>DHA Karachi</span>
             </h1>
             <p style={heroSubTitle} className="animate-subtitle">
               Exclusive Villas, Luxury Bungalows, and Prime Plots. <br/>
               Professional Real Estate Services you can trust in DHA.
             </p>
-            <button 
-              style={heroBtn} 
-              className="animate-btn"
-              onClick={() => window.scrollTo({top: window.innerHeight, behavior: 'smooth'})}
-            >
+            <button style={heroBtn} className="animate-btn" onClick={() => window.scrollTo({top: window.innerHeight, behavior: 'smooth'})}>
               Explore Listings
             </button>
           </div>
@@ -112,21 +116,45 @@ export default function Home() {
 
       {/* --- CONTENT SECTION --- */}
       <div style={{ padding: '20px', maxWidth: '1200px', margin: '40px auto', flex: 1 }}>
-        <h2 style={{ textAlign: 'center', color: '#1e40af', fontSize: '32px', marginBottom: '40px' }}>OUR SERVICES</h2>
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginBottom: '80px' }}>
-          {services.map(service => (
-            <ServiceCard key={service.id} service={service} onBook={setSelectedService} />
-          ))}
+        {/* --- SEARCH BAR --- */}
+        <div style={searchContainer}>
+          <div style={searchWrapper}>
+            <FaSearch style={{ color: '#94a3b8', marginRight: '10px' }} />
+            <input 
+              type="text" 
+              placeholder="Search by Title, Category (e.g. Villa), or Location..." 
+              style={searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <h2 style={{ textAlign: 'center', color: '#1e40af', fontSize: '32px', marginBottom: '40px', fontWeight: '800' }}>OUR PROPERTIES</h2>
+        
+        {/* --- PROPERTIES GRID --- */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px', marginBottom: '80px' }}>
+          {filteredServices.length > 0 ? (
+            filteredServices.map(service => (
+              <ServiceCard key={service.id} service={service} onBook={setSelectedService} />
+            ))
+          ) : (
+            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '50px', background: '#f8fafc', borderRadius: '15px', border: '2px dashed #cbd5e1' }}>
+              <h3 style={{ color: '#64748b' }}>No property listed for "{searchTerm}"</h3>
+              <p style={{ color: '#94a3b8' }}>Try searching with a different keyword or browse all properties.</p>
+              <button onClick={() => setSearchTerm('')} style={{ marginTop: '10px', color: '#1e40af', border: 'none', background: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Clear Search</button>
+            </div>
+          )}
         </div>
 
         <hr style={{ border: '0', borderTop: '1px solid #e2e8f0' }} />
 
         {/* --- REVIEWS SECTION --- */}
         <section style={{ marginTop: '60px', marginBottom: '80px' }}>
-          <h2 style={{ textAlign: 'center', color: '#1e40af' }}>CUSTOMER REVIEWS</h2>
+          <h2 style={{ textAlign: 'center', color: '#1e40af', fontWeight: '800' }}>CUSTOMER REVIEWS</h2>
           <div style={reviewBoxStyle}>
-            <h4>Leave a Review</h4>
+            <h4 style={{ marginBottom: '15px' }}>Leave a Review</h4>
             <form onSubmit={handleReviewSubmit}>
               <select style={inputStyle} value={newReview.rating} onChange={e => setNewReview({...newReview, rating: e.target.value})}>
                 <option value="5">⭐⭐⭐⭐⭐ (Excellent)</option>
@@ -135,7 +163,7 @@ export default function Home() {
                 <option value="2">⭐⭐ (Poor)</option>
                 <option value="1">⭐ (Very Bad)</option>
               </select>
-              <textarea style={{...inputStyle, height: '80px'}} placeholder="Tell us what you think!" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required />
+              <textarea style={{...inputStyle, height: '100px'}} placeholder="Tell us what you think!" value={newReview.comment} onChange={e => setNewReview({...newReview, comment: e.target.value})} required />
               <button type="submit" style={btnStyle}>Post Review</button>
             </form>
           </div>
@@ -145,7 +173,7 @@ export default function Home() {
               <div key={rev.id} style={revCardStyle}>
                 <div style={{ fontWeight: 'bold', color: '#1e40af' }}>{rev.customer_name}</div>
                 <div style={{ color: '#facc15', margin: '5px 0' }}>{"⭐".repeat(rev.rating)}</div>
-                <p style={{ fontSize: '14px', color: '#444' }}>{rev.comment}</p>
+                <p style={{ fontSize: '14px', color: '#444', lineHeight: '1.4' }}>{rev.comment}</p>
                 <small style={{ color: '#999' }}>{new Date(rev.created_at).toLocaleDateString()}</small>
               </div>
             ))}
@@ -184,21 +212,26 @@ export default function Home() {
   );
 }
 
-// --- STYLES ---
-const heroContainer = { position: 'relative', height: '85vh', width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' };
-const videoBackground = { position: 'absolute', top: '50%', left: '50%', minWidth: '100%', minHeight: '100%', width: 'auto', height: 'auto', transform: 'translate(-50%, -50%)', objectFit: 'cover', zIndex: '-1' };
-const heroOverlay = { position: 'absolute', inset: '0', background: 'rgba(0, 0, 0, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px' };
-const heroContent = { textAlign: 'center', maxWidth: '900px', color: 'white' };
-const heroTitle = { fontSize: 'clamp(2.2rem, 6vw, 4.5rem)', fontWeight: '800', marginBottom: '20px', lineHeight: '1.1', textTransform: 'uppercase' };
-const heroSubTitle = { fontSize: 'clamp(0.9rem, 2vw, 1.2rem)', marginBottom: '30px', color: '#f1f5f9', fontWeight: '300' };
-const heroBtn = { background: '#1e40af', color: 'white', padding: '16px 45px', fontSize: '18px', fontWeight: 'bold', border: 'none', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 4px 15px rgba(0,0,0,0.3)' };
-const reviewBoxStyle = { background: '#f8fafc', padding: '25px', borderRadius: '15px', border: '1px solid #e2e8f0', maxWidth: '500px', margin: '0 auto' };
-const inputStyle = { width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #cbd5e1' };
-const btnStyle = { width: '100%', padding: '12px', background: '#1e40af', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' };
-const revCardStyle = { background: 'white', padding: '20px', borderRadius: '15px', border: '1px solid #f1f5f9', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' };
-const footerStyle = { background: '#0f172a', color: 'white', padding: '60px 20px 20px 20px', marginTop: 'auto' };
+// --- NEW SEARCH STYLES ---
+const searchContainer = { display: 'flex', justifyContent: 'center', marginBottom: '50px', marginTop: '-20px' };
+const searchWrapper = { display: 'flex', alignItems: 'center', background: 'white', padding: '15px 25px', borderRadius: '50px', width: '100%', maxWidth: '600px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #f0f0f0' };
+const searchInput = { border: 'none', outline: 'none', width: '100%', fontSize: '16px', color: '#1e293b' };
+
+// --- REST OF STYLES (Hero, Cards, Footer, etc.) ---
+const heroContainer = { position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' };
+const videoBackground = { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', objectFit: 'cover', zIndex: '-1' };
+const heroOverlay = { position: 'absolute', inset: '0', background: 'rgba(0, 0, 0, 0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px' };
+const heroContent = { textAlign: 'center', maxWidth: '1100px', color: 'white' };
+const heroTitle = { fontSize: 'clamp(2rem, 5.5vw, 4.8rem)', fontWeight: '900', marginBottom: '25px', lineHeight: '1.1', textTransform: 'uppercase', letterSpacing: '-1px' };
+const heroSubTitle = { fontSize: 'clamp(0.9rem, 2vw, 1.25rem)', marginBottom: '40px', color: '#f1f5f9', fontWeight: '300', maxWidth: '800px', margin: '0 auto 40px auto', lineHeight: '1.6' };
+const heroBtn = { background: '#1e40af', color: 'white', padding: '20px 55px', fontSize: '18px', fontWeight: 'bold', border: 'none', borderRadius: '50px', cursor: 'pointer', boxShadow: '0 10px 25px rgba(0,0,0,0.4)', textTransform: 'uppercase', letterSpacing: '1px' };
+const reviewBoxStyle = { background: '#f8fafc', padding: '30px', borderRadius: '20px', border: '1px solid #e2e8f0', maxWidth: '600px', margin: '0 auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' };
+const inputStyle = { width: '100%', padding: '14px', marginBottom: '15px', borderRadius: '10px', border: '1px solid #cbd5e1', fontSize: '16px' };
+const btnStyle = { width: '100%', padding: '14px', background: '#1e40af', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' };
+const revCardStyle = { background: 'white', padding: '25px', borderRadius: '18px', border: '1px solid #f1f5f9', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)' };
+const footerStyle = { background: '#0f172a', color: 'white', padding: '80px 20px 20px 20px', marginTop: 'auto' };
 const footerContainer = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '40px', maxWidth: '1200px', margin: '0 auto' };
 const footerCol = { display: 'flex', flexDirection: 'column' };
-const socialIconContainer = { display: 'flex', gap: '20px' };
-const contactItem = { color: '#cbd5e1', fontSize: '14px', display: 'flex', alignItems: 'center', marginBottom: '12px' };
-const copyrightStyle = { textAlign: 'center', marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #334155', fontSize: '13px', color: '#94a3b8' };
+const socialIconContainer = { display: 'flex', gap: '25px' };
+const contactItem = { color: '#cbd5e1', fontSize: '15px', display: 'flex', alignItems: 'center', marginBottom: '15px' };
+const copyrightStyle = { textAlign: 'center', marginTop: '60px', paddingTop: '20px', borderTop: '1px solid #1e293b', fontSize: '14px', color: '#94a3b8' };
