@@ -54,7 +54,7 @@ function App() {
   return (
     <Router>
       <nav style={navStyle}>
-        <div style={{ fontWeight: 'bold', fontSize: '20px' }}>TECH PRO SERVICES</div>
+        <div style={{ fontWeight: 'bold', fontSize: '20px' }}>DHA VILLAS & BUNGALOWS</div>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
           {user && <Link to="/home" style={linkStyle}>Home</Link>}
           
