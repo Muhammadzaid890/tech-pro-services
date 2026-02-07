@@ -3,11 +3,12 @@ import { supabase } from '../supabaseClient';
 import ServiceCard from './ServiceCard';
 import BookingForm from './BookingForm';
 import { useNavigate } from 'react-router-dom';
-import { FaInstagram, FaFacebook, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt, FaSearch } from 'react-icons/fa';
+// FaGoogle yahan import kar liya hai
+import { FaInstagram, FaFacebook, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt, FaSearch, FaGoogle } from 'react-icons/fa';
 
 export default function Home() {
   const [services, setServices] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(''); // Search state
+  const [searchTerm, setSearchTerm] = useState('');
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ comment: '', rating: 5 });
   const [selectedService, setSelectedService] = useState(null);
@@ -39,7 +40,6 @@ export default function Home() {
     if (data) setReviews(data);
   }
 
-  // --- Search Logic ---
   const filteredServices = services.filter(service => 
     service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -133,7 +133,6 @@ export default function Home() {
 
         <h2 style={{ textAlign: 'center', color: '#1e40af', fontSize: '32px', marginBottom: '40px', fontWeight: '800' }}>OUR PROPERTIES</h2>
         
-        {/* --- PROPERTIES GRID --- */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px', marginBottom: '80px' }}>
           {filteredServices.length > 0 ? (
             filteredServices.map(service => (
@@ -142,7 +141,6 @@ export default function Home() {
           ) : (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '50px', background: '#f8fafc', borderRadius: '15px', border: '2px dashed #cbd5e1' }}>
               <h3 style={{ color: '#64748b' }}>No property listed for "{searchTerm}"</h3>
-              <p style={{ color: '#94a3b8' }}>Try searching with a different keyword or browse all properties.</p>
               <button onClick={() => setSearchTerm('')} style={{ marginTop: '10px', color: '#1e40af', border: 'none', background: 'none', textDecoration: 'underline', cursor: 'pointer' }}>Clear Search</button>
             </div>
           )}
@@ -197,6 +195,10 @@ export default function Home() {
             <div style={socialIconContainer}>
               <a href="https://instagram.com" target="_blank" rel="noreferrer" style={getDynamicStyle('insta', '#E4405F')} onMouseEnter={() => setHoveredIcon('insta')} onMouseLeave={() => setHoveredIcon(null)}><FaInstagram size={30} /></a>
               <a href="https://facebook.com" target="_blank" rel="noreferrer" style={getDynamicStyle('fb', '#1877F2')} onMouseEnter={() => setHoveredIcon('fb')} onMouseLeave={() => setHoveredIcon(null)}><FaFacebook size={30} /></a>
+              
+              {/* --- NEW GOOGLE ICON ADDED HERE --- */}
+              <a href="YOUR_GOOGLE_MAPS_LINK" target="_blank" rel="noreferrer" style={getDynamicStyle('google', '#4285F4')} onMouseEnter={() => setHoveredIcon('google')} onMouseLeave={() => setHoveredIcon(null)}><FaGoogle size={30} /></a>
+              
               <a href="mailto:support@dhavillasandbungalows.com" style={getDynamicStyle('mail', '#DB4437')} onMouseEnter={() => setHoveredIcon('mail')} onMouseLeave={() => setHoveredIcon(null)}><FaEnvelope size={30} /></a>
             </div>
           </div>
@@ -212,12 +214,10 @@ export default function Home() {
   );
 }
 
-// --- NEW SEARCH STYLES ---
+// Styles remains same as your original code
 const searchContainer = { display: 'flex', justifyContent: 'center', marginBottom: '50px', marginTop: '-20px' };
 const searchWrapper = { display: 'flex', alignItems: 'center', background: 'white', padding: '15px 25px', borderRadius: '50px', width: '100%', maxWidth: '600px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #f0f0f0' };
 const searchInput = { border: 'none', outline: 'none', width: '100%', fontSize: '16px', color: '#1e293b' };
-
-// --- REST OF STYLES (Hero, Cards, Footer, etc.) ---
 const heroContainer = { position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const videoBackground = { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', objectFit: 'cover', zIndex: '-1' };
 const heroOverlay = { position: 'absolute', inset: '0', background: 'rgba(0, 0, 0, 0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 20px' };
