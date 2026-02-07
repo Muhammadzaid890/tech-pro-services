@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Pencil, Trash2, Star } from 'lucide-react'; 
+import { Pencil, Trash2, Star, CheckCircle } from 'lucide-react'; 
 
 const Admin = () => {
   const [bookings, setBookings] = useState([]);
   const [services, setServices] = useState([]); 
-  const [reviews, setReviews] = useState([]); // Reviews state
+  const [reviews, setReviews] = useState([]);
   const [newService, setNewService] = useState({ title: '', description: '', category: '', media: [], price: '' });
   const [uploading, setUploading] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -13,8 +13,23 @@ const Admin = () => {
   useEffect(() => {
     fetchBookings();
     fetchServices();
-    fetchReviews(); // Load reviews on start
+    fetchReviews();
   }, []);
+
+  // --- Cover Photo Logic ---
+  const setAsCover = (index) => {
+    const updatedMedia = [...newService.media];
+    // Array se image nikaal kar sabse shuru mein (Index 0) daalna
+    const [selectedItem] = updatedMedia.splice(index, 1);
+    updatedMedia.unshift(selectedItem);
+    
+    setNewService({ ...newService, media: updatedMedia });
+  };
+
+  const removeMedia = (index) => {
+    const updatedMedia = newService.media.filter((_, i) => i !== index);
+    setNewService({ ...newService, media: updatedMedia });
+  };
 
   const formatPriceToWords = (num) => {
     if (!num || isNaN(num)) return "";
@@ -43,10 +58,8 @@ const Admin = () => {
     if (data) setServices(data);
   }
 
-  // Fetch Reviews Function
   async function fetchReviews() {
     const { data, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
-    if (error) console.error("Reviews fetch error:", error);
     if (data) setReviews(data);
   }
 
@@ -63,7 +76,6 @@ const Admin = () => {
         if (urlData) uploadedMedia.push({ url: urlData.publicUrl, type: file.type.startsWith('video') ? 'video' : 'image' });
       }
       setNewService({ ...newService, media: uploadedMedia });
-      alert("Uploaded!");
     } catch (error) { alert(error.message); } finally { setUploading(false); }
   };
 
@@ -83,12 +95,10 @@ const Admin = () => {
   const deleteAd = async (id) => {
     if (window.confirm("Delete this Ad?")) {
       const { error } = await supabase.from('services').delete().eq('id', id);
-      if (error) {
-        if (error.code === '23503') {
-           alert("❌ Galti: Is Ad ki Bookings pehle se maujood hain. Pehle niche se Bookings delete karein.");
-        } else {
-           alert("Error: " + error.message);
-        }
+      if (error?.code === '23503') {
+        alert("❌ Galti: Is Ad ki Bookings pehle se maujood hain.");
+      } else if (error) {
+        alert("Error: " + error.message);
       } else {
         fetchServices();
       }
@@ -102,15 +112,11 @@ const Admin = () => {
     }
   };
 
-  // Naya Review Delete Function
   const deleteReview = async (id) => {
     if (window.confirm("Kya aap ye review delete karna chahte hain?")) {
       const { error } = await supabase.from('reviews').delete().eq('id', id);
-      if (error) {
-        alert("Error: " + error.message);
-      } else {
-        fetchReviews(); // Refresh the list
-      }
+      if (error) alert("Error: " + error.message);
+      else fetchReviews();
     }
   };
 
@@ -129,11 +135,62 @@ const Admin = () => {
           </div>
           <textarea style={inputStyle} placeholder="Description" rows="4" value={newService.description} onChange={e => setNewService({...newService, description: e.target.value})} required />
           <input style={inputStyle} placeholder="Category" value={newService.category} onChange={e => setNewService({...newService, category: e.target.value})} required />
-          <div style={{background: '#fff', padding: '10px', borderRadius: '5px', border: '1px dashed #ccc', marginBottom: '10px'}}>
-            <label style={{fontSize: '14px', color: '#666'}}>Upload Images/Videos: </label>
-            <input type="file" multiple onChange={handleFileUpload} />
+          
+          <div style={{background: '#fff', padding: '15px', borderRadius: '8px', border: '1px dashed #ccc', marginBottom: '10px'}}>
+            <label style={{fontSize: '14px', color: '#666', fontWeight:'bold'}}>Upload Images/Videos: </label>
+            <input type="file" multiple onChange={handleFileUpload} style={{marginTop:'10px', display:'block'}} />
+            
+            {/* Image Preview & Cover Photo Selector */}
+            {newService.media.length > 0 && (
+              <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(100px, 1fr))', gap:'10px', marginTop:'15px'}}>
+                {newService.media.map((item, index) => (
+                  <div 
+                    key={index} 
+                    onDoubleClick={() => setAsCover(index)}
+                    style={{
+                      position:'relative', 
+                      borderRadius:'8px', 
+                      overflow:'hidden', 
+                      border: index === 0 ? '3px solid #1e40af' : '1px solid #ddd',
+                      cursor: 'pointer'
+                    }}
+                    title="Double click to set as cover"
+                  >
+                    {item.type === 'video' ? (
+                      <video src={item.url} style={{width:'100%', height:'100px', objectFit:'cover'}} />
+                    ) : (
+                      <img src={item.url} alt="preview" style={{width:'100%', height:'100px', objectFit:'cover'}} />
+                    )}
+                    
+                    {index === 0 && (
+                      <div style={{position:'absolute', top:'0', left:'0', background:'#1e40af', color:'white', padding:'2px 5px', fontSize:'10px', fontWeight:'bold'}}>
+                        COVER
+                      </div>
+                    )}
+                    
+                    <button 
+                      type="button" 
+                      onClick={() => removeMedia(index)}
+                      style={{position:'absolute', top:'2px', right:'2px', background:'rgba(255,0,0,0.7)', color:'white', border:'none', borderRadius:'50%', width:'20px', height:'20px', cursor:'pointer', fontSize:'10px'}}
+                    >
+                      X
+                    </button>
+                    
+                    <button 
+                      type="button"
+                      onClick={() => setAsCover(index)}
+                      style={{position:'absolute', bottom:'0', width:'100%', background: index === 0 ? '#1e40af' : 'rgba(0,0,0,0.6)', color:'white', fontSize:'9px', border:'none', padding:'3px 0', cursor:'pointer'}}
+                    >
+                      {index === 0 ? 'Main Photo' : 'Set Cover'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p style={{fontSize:'11px', color:'#94a3b8', marginTop:'10px'}}>* Double click any image to set it as the main cover photo.</p>
           </div>
-          <button type="submit" style={btnStyle} disabled={uploading}>{uploading ? "Uploading..." : "Publish Ad"}</button>
+
+          <button type="submit" style={btnStyle} disabled={uploading}>{uploading ? "Uploading..." : editingId ? "Update Ad" : "Publish Ad"}</button>
         </form>
       </section>
 
@@ -142,9 +199,12 @@ const Admin = () => {
         <h2 style={{color: '#1e40af'}}>Manage Your Ads</h2>
         {services.map(ad => (
           <div key={ad.id} style={adRowStyle}>
-            <span>{ad.title} - <strong>PKR {ad.price}</strong></span>
+            <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
+              <img src={ad.media[0]?.url} style={{width:'40px', height:'40px', borderRadius:'4px', objectFit:'cover'}} alt="thumb" />
+              <span>{ad.title} - <strong>PKR {ad.price}</strong></span>
+            </div>
             <div>
-              <button onClick={() => { setEditingId(ad.id); setNewService(ad); window.scrollTo(0,0); }} style={{marginRight:'5px', cursor:'pointer'}}><Pencil size={16}/></button>
+              <button onClick={() => { setEditingId(ad.id); setNewService(ad); window.scrollTo({top:0, behavior:'smooth'}); }} style={{marginRight:'5px', cursor:'pointer'}}><Pencil size={16}/></button>
               <button onClick={() => deleteAd(ad.id)} style={{background:'#ef4444', color:'white', border:'none', padding:'5px', borderRadius:'4px', cursor:'pointer'}}><Trash2 size={16}/></button>
             </div>
           </div>
@@ -180,7 +240,7 @@ const Admin = () => {
         </div>
       </section>
 
-      {/* SECTION 4: MANAGE REVIEWS (Naya Section) */}
+      {/* SECTION 4: MANAGE REVIEWS */}
       <section style={cardStyle}>
         <h2 style={{borderBottom: '2px solid #1e40af', paddingBottom: '10px', color: '#1e40af'}}>Manage Customer Reviews</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '15px', marginTop: '15px' }}>
@@ -191,10 +251,7 @@ const Admin = () => {
                 {[...Array(rev.rating)].map((_, i) => <Star key={i} size={12} fill="#facc15" />)}
               </div>
               <p style={{ fontSize: '13px', color: '#555', margin: '5px 0' }}>{rev.comment}</p>
-              <button 
-                onClick={() => deleteReview(rev.id)} 
-                style={{ position: 'absolute', top: '10px', right: '10px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}
-              >
+              <button onClick={() => deleteReview(rev.id)} style={{ position: 'absolute', top: '10px', right: '10px', color: '#ef4444', border: 'none', background: 'none', cursor: 'pointer' }}>
                 <Trash2 size={16} />
               </button>
             </div>
