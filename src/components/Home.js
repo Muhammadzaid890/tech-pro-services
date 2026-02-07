@@ -3,8 +3,12 @@ import { supabase } from '../supabaseClient';
 import ServiceCard from './ServiceCard';
 import BookingForm from './BookingForm';
 import { useNavigate } from 'react-router-dom';
-// FaGoogle yahan import kar liya hai
 import { FaInstagram, FaFacebook, FaEnvelope, FaMapMarkerAlt, FaPhoneAlt, FaSearch, FaGoogle } from 'react-icons/fa';
+
+// --- CLEAN LINKS SECTION (Yahan se link change karna asaan hai) ---
+const INSTAGRAM_URL = "https://www.instagram.com/sadafestaterealtors?igsh=MWRnaXlhNDh4ZnlpNg==";
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61584604430022";
+const GOOGLE_URL = "https://www.google.com/search?q=Dha+bungalows&stick=H4sIAAAAAAAA_-NgU1I1qDBOTTI2TrE0M0hKtjSyMDC3MqhItkiztDBMNjMzMrZINE5NXMTK65KRqJBUmpeemJNfXgwAHZxKpzkAAAA&hl=en-GB&mat=CWAwx3nd3NwvElcBTVDHnkmMpShA94PijhxjNs8v4hKYXtfCtAC53X3oIdE0Y4oIvL2nhTPsZMqDcDco0YjWNUvGlt4sdJcfGr7CTjsZ0aJY6rB4_M88JFI5zpeh15McvIo&authuser=0";
 
 export default function Home() {
   const [services, setServices] = useState([]);
@@ -193,12 +197,9 @@ export default function Home() {
           <div style={footerCol}>
             <h4 style={{ color: '#fff', marginBottom: '15px' }}>Follow Us</h4>
             <div style={socialIconContainer}>
-              <a href="https://instagram.com" target="_blank" rel="noreferrer" style={getDynamicStyle('insta', '#E4405F')} onMouseEnter={() => setHoveredIcon('insta')} onMouseLeave={() => setHoveredIcon(null)}><FaInstagram size={30} /></a>
-              <a href="https://facebook.com" target="_blank" rel="noreferrer" style={getDynamicStyle('fb', '#1877F2')} onMouseEnter={() => setHoveredIcon('fb')} onMouseLeave={() => setHoveredIcon(null)}><FaFacebook size={30} /></a>
-              
-              {/* --- NEW GOOGLE ICON ADDED HERE --- */}
-              <a href="YOUR_GOOGLE_MAPS_LINK" target="_blank" rel="noreferrer" style={getDynamicStyle('google', '#4285F4')} onMouseEnter={() => setHoveredIcon('google')} onMouseLeave={() => setHoveredIcon(null)}><FaGoogle size={30} /></a>
-              
+              <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer" style={getDynamicStyle('insta', '#E4405F')} onMouseEnter={() => setHoveredIcon('insta')} onMouseLeave={() => setHoveredIcon(null)}><FaInstagram size={30} /></a>
+              <a href={FACEBOOK_URL} target="_blank" rel="noreferrer" style={getDynamicStyle('fb', '#1877F2')} onMouseEnter={() => setHoveredIcon('fb')} onMouseLeave={() => setHoveredIcon(null)}><FaFacebook size={30} /></a>
+              <a href={GOOGLE_URL} target="_blank" rel="noreferrer" style={getDynamicStyle('google', '#4285F4')} onMouseEnter={() => setHoveredIcon('google')} onMouseLeave={() => setHoveredIcon(null)}><FaGoogle size={30} /></a>
               <a href="mailto:support@dhavillasandbungalows.com" style={getDynamicStyle('mail', '#DB4437')} onMouseEnter={() => setHoveredIcon('mail')} onMouseLeave={() => setHoveredIcon(null)}><FaEnvelope size={30} /></a>
             </div>
           </div>
@@ -214,7 +215,7 @@ export default function Home() {
   );
 }
 
-// Styles remains same as your original code
+// Styles
 const searchContainer = { display: 'flex', justifyContent: 'center', marginBottom: '50px', marginTop: '-20px' };
 const searchWrapper = { display: 'flex', alignItems: 'center', background: 'white', padding: '15px 25px', borderRadius: '50px', width: '100%', maxWidth: '600px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', border: '1px solid #f0f0f0' };
 const searchInput = { border: 'none', outline: 'none', width: '100%', fontSize: '16px', color: '#1e293b' };
